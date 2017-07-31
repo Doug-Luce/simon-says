@@ -1,6 +1,10 @@
+//Tell Codepen not to close loop during animation.
+window.CP.PenTimer.MAX_TIME_IN_LOOP_WO_EXIT = 60000;
 let game = {};
 let sequence = {};
 let debug = {};
+sequence.playerPattern = [];
+sequence.pattern = [];
 
 game.buttonAction = className => {
   $(className)
@@ -10,6 +14,7 @@ game.buttonAction = className => {
       document.getElementById(sound).play();
       switch (className) {
         case ".start":
+          game.start();
           break;
         case ".red-button":
           sequence.playerInput(".red-button");
@@ -56,7 +61,7 @@ game.showPress = button => {
   $(button).addClass("active");
   setTimeout(function() {
     $(button).removeClass("active");
-  }, 600);
+  }, game.state.buttonTime);
 };
 
 game.buttonHook = () => {
@@ -66,28 +71,58 @@ game.buttonHook = () => {
   }
 };
 
+game.state = {
+  playerTurn: false,
+  started: false,
+  steps: 1,
+  sequenceTime: 800,
+  buttonTime: 100,
+};
+
+debug.state = game.state;
+
 game.start = () => {
-  game.buttonHook();
+  // Call sequence.generator with 1 for first pattern
+  sequence.playSequence(sequence.generator(game.state.steps));
+  // Don't allow input while sequence is playing
+  
+  // Stop and have player input sequence
+ 
+  // Check that sequence of player matches computer
+  
+  // Increment by one for sequence.generator call
+  
+  // Repeat until game.state.steps = 20
+  game.state.playerTurn = true;
 }
 
-sequence.playSequence = async () => {
-    for (let i = 0; i < sequence.pattern.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 600));
-      game.showPress(sequence.pattern[i]);
-      let sound = $(sequence.pattern[i]).attr("data-sound");
+sequence.playSequence = async (sequenceArr) => {
+    for (let i = 0; i < sequenceArr.length; i++) {
+      await new Promise(resolve => setTimeout(resolve, game.state.sequenceTime));
+      game.showPress(sequenceArr[i]);
+      let sound = $(sequenceArr[i]).attr("data-sound");
       document.getElementById(sound).play();
     }
   };
 
 sequence.playerInput = (className) => {
-  sequence.playerPattern.push(className);
+  if(game.state.playerTurn) {
+    sequence.playerPattern.push(className);
+  }
 };
 
-sequence.playerPattern = [];
-sequence.pattern = [".red-button", ".blue-button", ".yellow-button"];
+sequence.generator = (patternLength) => {
+  let classList = ['.blue-button', '.red-button', '.yellow-button', '.green-button'];
+  let pattern = [];
+  for(i = 0; i < patternLength; i++) {
+    pattern.push(classList[_.random(0, classList.length - 1)]);
+  }
+  debug.pattern = pattern;
+  return pattern;
+}
 
 debug.log = () => {
   console.log(debug);
 };
 
-game.start();
+game.buttonHook();
