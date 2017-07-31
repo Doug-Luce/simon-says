@@ -73,7 +73,7 @@ game.buttonHook = () => {
 
 game.state = {
   playerTurn: false,
-  started: false,
+  computerTurn: true,
   steps: 1,
   sequenceTime: 800,
   buttonTime: 100,
@@ -82,18 +82,19 @@ game.state = {
 debug.state = game.state;
 
 game.start = () => {
-  // Call sequence.generator with 1 for first pattern
-  sequence.playSequence(sequence.generator(game.state.steps));
-  // Don't allow input while sequence is playing
-  
-  // Stop and have player input sequence
+  if(game.state.computerTurn) {
+    // Call sequence.generator with 1 for first pattern
+    sequence.pattern = sequence.generator(game.state.steps);
+    sequence.playSequence(sequence.pattern);
  
   // Check that sequence of player matches computer
-  
+  //if(sequence.pattern === )
   // Increment by one for sequence.generator call
   
   // Repeat until game.state.steps = 20
   game.state.playerTurn = true;
+  //game.state.computerTurn = false;
+  }
 }
 
 sequence.playSequence = async (sequenceArr) => {
@@ -108,6 +109,9 @@ sequence.playSequence = async (sequenceArr) => {
 sequence.playerInput = (className) => {
   if(game.state.playerTurn) {
     sequence.playerPattern.push(className);
+    game.state.steps++;
+    game.state.computerTurn = true;
+    
   }
 };
 
